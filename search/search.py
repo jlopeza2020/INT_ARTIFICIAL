@@ -87,12 +87,108 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    #use an stack(LIFO) to store all states
+    frontier = util.Stack()
+
+    # array that stores all explored nodes
+    expanded = []
+
+    # set start position
+    start_state = problem.getStartState()
+    # set an array for storing  pacman actions
+    pcm_actions = []
+
+    # I create a node in which will be stored state and actions 
+    # that the pacman will perform
+    start_node = (start_state, pcm_actions)
+    
+    frontier.push(start_node)
+
+    # while there are positions in stack 
+    while not frontier.isEmpty():
+        # it is being exploring the last node being pushed 
+        # (as it is an stack) 
+        currentState, actions = frontier.pop()
+        
+        # if current state has not being explored yet
+        if currentState not in expanded:
+            # fix current node as explored
+            expanded.append(currentState)
+
+            # if it has reached to the goal, returns actions
+            # for the pacman to be performed
+            if problem.isGoalState(currentState):
+                return actions
+            else:
+                # get list of successor nodes in 
+                # form (successor, action, stepCost)
+                successors = problem.getSuccessors(currentState)
+                
+                # push each successor (state, action) to frontier
+                for successor_state, successor_action, successor_cost in successors:
+                    new_action = actions + [successor_action]
+                    new_node = (successor_state, new_action)
+
+                    frontier.push(new_node)
+
+    return actions  
+
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    #util.raiseNotDefined()
+    #use an Queue(LFFO) to store all states
+    frontier = util.Queue()
+
+    # array that stores all explored nodes
+    expanded = []
+
+    # set start position
+    start_state = problem.getStartState()
+    # set an array for storing  pacman actions
+    pcm_actions = []
+
+    initial_cost = 0
+
+    # I create a node in which will be stored state and actions 
+    # that the pacman will perform
+    start_node = (start_state, pcm_actions, initial_cost)
+    
+    frontier.push(start_node)
+
+    # while there are positions in queue
+    while not frontier.isEmpty():
+        # it is being exploring the first node being pushed 
+        # (as it is an queue) 
+        currentState, actions, current_cost = frontier.pop()
+        
+        # if current state has not being explored yet
+        if currentState not in expanded:
+            # fix current node as explored
+            expanded.append(currentState)
+
+            # if it has reached to the goal, returns actions
+            # for the pacman to be performed
+            if problem.isGoalState(currentState):
+                return actions
+            else:
+                # get list of successor nodes in 
+                # form (successor, action, stepCost)
+                successors = problem.getSuccessors(currentState)
+                
+                # push each successor (state, action, cost) to frontier
+                for successor_state, successor_action, successor_cost in successors:
+                    new_action = actions + [successor_action]
+                    new_cost = current_cost + successor_cost
+                    new_node = (successor_state, new_action, new_cost)
+
+                    frontier.push(new_node)
+
+    return actions  
+
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
