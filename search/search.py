@@ -268,6 +268,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     #util.raiseNotDefined()
+    
 
 
 # Abbreviations
