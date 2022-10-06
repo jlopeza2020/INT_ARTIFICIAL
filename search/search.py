@@ -112,7 +112,7 @@ def depthFirstSearch(problem: SearchProblem):
         node = frontier.pop()
 
         current_state = node[0]
-        actions = node[1]
+        actions = node [1]
 
         # if current state has not being explored yet
         if current_state not in expanded:
@@ -143,7 +143,6 @@ def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
 
-    #util.raiseNotDefined()
     #use an Queue(LIFO) to store all states
     frontier = util.Queue()
 
@@ -198,53 +197,63 @@ def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
 
-    #util.raiseNotDefined()
-    #use an Queue(LIFO) to store all states
-    frontier = util.Queue()
+    #use an Queue(LIFO) with priority to store all states
+    frontier = util.PriorityQueue()
 
     # array that stores all explored nodes
-    expanded = []
+    # to do so I used a dictionary state:cost
+    expanded = {}
 
     # set start position
     start_state = problem.getStartState()
     # set an array for storing  pacman actions
     pcm_actions = []
 
+    #set initical Cost
     initial_cost = 0
 
     # I create a node in which will be stored state and actions 
     # that the pacman will perform
-    start_node = (start_state, pcm_actions, )
+    start_node = (start_state, pcm_actions, initial_cost)
 
-    frontier.push(start_node)
+    # def push(self, item, priority)
+    frontier.push(start_node, initial_cost)
 
     # while there are positions in queue
     while not frontier.isEmpty():
         # it is being exploring the first node being pushed 
         # (as it is an queue) 
-        currentState, actions, cost = frontier.pop()
+        node = frontier.pop()
         
-        # if current state has not being explored yet
-        if currentState not in expanded:
-            # fix current node as explored
-            expanded.append(currentState)
+        #node 
+        current_state = node[0]
+        actions = node[1]
+        current_cost = node[2]
 
+        print("current_state", current_state)
+        print("actions", actions)
+        print("cost", current_cost)
+        
+        # if current state has not being explored yet or current_cost < cost in the current_state
+        if current_state not in expanded or current_cost < expanded[current_state]:
+        # fix current node as explored
+            expanded[current_state] = current_cost
             # if it has reached to the goal, returns actions
             # for the pacman to be performed
-            if problem.isGoalState(currentState):
-                return actions
+            if problem.isGoalState(current_state):
+                break
             else:
                 # get list of successor nodes in 
                 # form (successor, action, stepCost)
-                successors = problem.getSuccessors(currentState)
+                successors = problem.getSuccessors(current_state)
                 
                 # push each successor (state, action, cost) to frontier
                 for successor_state, successor_action, successor_cost in successors:
                     new_action = actions + [successor_action]
-                    new_cost = cost + successor_cost
+                    new_cost = current_cost + successor_cost
                     new_node = (successor_state, new_action, new_cost)
 
-                    frontier.push(new_node)
+                    frontier.update(new_node, new_cost)
 
     return actions
 
@@ -258,7 +267,7 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #util.raiseNotDefined()
 
 
 # Abbreviations
