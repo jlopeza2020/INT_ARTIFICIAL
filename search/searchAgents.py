@@ -294,6 +294,30 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
 
         self.num_reached_corners = 0
+        self.startingGameState = startingGameState
+        self.corners_visited = [False, False, False , False]
+
+        if self.startingPosition == self.corners[0]:
+            self.num_reached_corners  = self.num_reached_corners + 1
+            self.corners_visited[0] = True
+
+        if self.startingPosition == self.corners[1]:
+            self.num_reached_corners  = self.num_reached_corners + 1
+            self.corners_visited[1] = True
+
+        
+        if self.startingPosition == self.corners[2]:
+            self.num_reached_corners  = self.num_reached_corners + 1
+            self.corners_visited[2] = True
+
+
+        if self.startingPosition == self.corners[3]:
+            self.num_reached_corners  = self.num_reached_corners + 1
+            self.corners_visited[3] = True
+
+        self.startingState = (self.startingPosition, tuple(self.corners_visited))
+        
+
 
     def getStartState(self):
         """
@@ -311,6 +335,8 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         #util.raiseNotDefined()
         # si ha llegado a las esquinas que se aumente el numero de esquinas
+        print("state",state[1])
+
         reached_goal = False
         if self.num_reached_corners == 4:
             reached_goal = True
@@ -339,24 +365,38 @@ class CornersProblem(search.SearchProblem):
 
             "*** YOUR CODE HERE ***"
             x,y = state
+            #print("state",state[])
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-            #if not self.walls[nextx][nexty]:
-             #   nextState = (nextx, nexty)
-                #cost = self.costFn(nextState)
-              #  successors.append( ( nextState, action, 0) )
-            #if self.walls[nextx][nexty] == cor:
-            #    nextState = (nextx, nexty)
-                #cost = self.costFn(nextState)
-            #    successors.append( ( nextState, action, 0) )
-            #pos = 0
-            #self.corners[pos]
-            print(self.corners[pos])
-            if not self.walls[nextx][nexty] or :
-                nextState = (nextx, nexty)
-                #cost = self.costFn(nextState)
-                successors.append( ( nextState, action, 0) )
 
+            if not self.walls[nextx][nexty]:
+                next_state = (nextx, nexty)
+                
+                #corners_visited = list(state[1])
+                if next_state == self.corners[0]:
+                    self.num_reached_corners = self.num_reached_corners + 1
+                    self.corners_visited[0] = True
+                
+                if next_state == self.corners[1]:
+                    self.num_reached_corners = self.num_reached_corners + 1
+
+                    self.corners_visited[1] = True
+                
+                if next_state == self.corners[2]:
+                    self.num_reached_corners = self.num_reached_corners + 1
+
+                    self.corners_visited[2] = True
+                
+                if next_state == self.corners[3]:
+                    self.num_reached_corners = self.num_reached_corners + 1
+
+                    self.corners_visited[3] = True
+                
+                cost = 1
+                successors.append(((next_state, tuple(self.corners_visited)),action, cost))
+                #successors.append((next_state,action, cost))
+
+            
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
