@@ -277,7 +277,7 @@ class CornersProblem(search.SearchProblem):
     You must select a suitable state space and successor function
     """
 
-    def __init__(self, startingGameState: pacman.GameState):
+    def __init__(self, startingGameState):
         """
         Stores the walls, pacman's starting position and corners.
         """
@@ -289,64 +289,45 @@ class CornersProblem(search.SearchProblem):
             if not startingGameState.hasFood(*corner):
                 print('Warning: no food in corner ' + str(corner))
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
-        # Please add any code here which you would like to use
-        # in initializing the problem
-        "*** YOUR CODE HERE ***"
-
-        self.num_reached_corners = 0
-        self.startingGameState = startingGameState
-        self.corners_visited = [False, False, False , False]
-
+        
+        corners_visited = (False, False, False, False)
+        
         if self.startingPosition == self.corners[0]:
-            self.num_reached_corners  = self.num_reached_corners + 1
-            self.corners_visited[0] = True
-
+            corners_visited[0] = True
+        
         if self.startingPosition == self.corners[1]:
-            self.num_reached_corners  = self.num_reached_corners + 1
-            self.corners_visited[1] = True
-
+            corners_visited[1] = True
         
         if self.startingPosition == self.corners[2]:
-            self.num_reached_corners  = self.num_reached_corners + 1
-            self.corners_visited[2] = True
-
-
-        if self.startingPosition == self.corners[3]:
-            self.num_reached_corners  = self.num_reached_corners + 1
-            self.corners_visited[3] = True
-
-        self.startingState = (self.startingPosition, tuple(self.corners_visited))
+            corners_visited[2] = True
         
-
+        if self.startingPosition == self.corners[3]:
+            corners_visited[3] = True
+        
+        self.startingState = (self.startingPosition, corners_visited)
 
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        #util.raiseNotDefined()
-        return self.startingPosition
+        return self.startingState
 
-    def isGoalState(self, state: Any):
+    def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        #util.raiseNotDefined()
-        # si ha llegado a las esquinas que se aumente el numero de esquinas
-        print("state",state[1])
-
-        reached_goal = False
-        if self.num_reached_corners == 4:
-            reached_goal = True
         
-        return reached_goal
+        corners_visited = state[1]
+        reached_all_corners = False
+        if corners_visited[0] and corners_visited[1] and corners_visited[2] and corners_visited[3]:
+            reached_all_corners = True
 
-    def getSuccessors(self, state: Any):
+        return reached_all_corners
+
+    def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
-
          As noted in search.py:
             For a given state, this should return a list of triples, (successor,
             action, stepCost), where 'successor' is a successor to the current
@@ -355,48 +336,36 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+        # Add a successor state to the successor list if the action is legal
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            # Add a successor state to the successor list if the action is legal
-            # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
 
-            "*** YOUR CODE HERE ***"
-            x,y = state
-            #print("state",state[])
+            # Figure out whether a new position hits a wall
+            x,y = state[0]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-
+            hitsWall = self.walls[nextx][nexty]
+            
             if not self.walls[nextx][nexty]:
-                next_state = (nextx, nexty)
                 
-                #corners_visited = list(state[1])
-                if next_state == self.corners[0]:
-                    self.num_reached_corners = self.num_reached_corners + 1
-                    self.corners_visited[0] = True
+                nextState = (nextx, nexty)
                 
-                if next_state == self.corners[1]:
-                    self.num_reached_corners = self.num_reached_corners + 1
-
-                    self.corners_visited[1] = True
+                # Have to create a new list to create a deep copy
+                # else it won't return correct number of moves
+                corners_visited = list(state[1])
+                if nextState == self.corners[0]:
+                    corners_visited[0] = True
                 
-                if next_state == self.corners[2]:
-                    self.num_reached_corners = self.num_reached_corners + 1
-
-                    self.corners_visited[2] = True
+                if nextState == self.corners[1]:
+                    corners_visited[1] = True
                 
-                if next_state == self.corners[3]:
-                    self.num_reached_corners = self.num_reached_corners + 1
-
-                    self.corners_visited[3] = True
+                if nextState == self.corners[2]:
+                    corners_visited[2] = True
+                
+                if nextState == self.corners[3]:
+                    corners_visited[3] = True
                 
                 cost = 1
-                successors.append(((next_state, tuple(self.corners_visited)),action, cost))
-                #successors.append((next_state,action, cost))
-
-            
+                successors.append(((nextState, corners_visited), action, cost, ))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
