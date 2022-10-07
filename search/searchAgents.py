@@ -293,20 +293,29 @@ class CornersProblem(search.SearchProblem):
         # in initializing the problem
         "*** YOUR CODE HERE ***"
 
+        self.num_reached_corners = 0
+
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
+        return self.startingPosition
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
+        # si ha llegado a las esquinas que se aumente el numero de esquinas
+        reached_goal = False
+        if self.num_reached_corners == 4:
+            reached_goal = True
+        
+        return reached_goal
 
     def getSuccessors(self, state: Any):
         """
@@ -329,6 +338,25 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            x,y = state
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            #if not self.walls[nextx][nexty]:
+             #   nextState = (nextx, nexty)
+                #cost = self.costFn(nextState)
+              #  successors.append( ( nextState, action, 0) )
+            #if self.walls[nextx][nexty] == cor:
+            #    nextState = (nextx, nexty)
+                #cost = self.costFn(nextState)
+            #    successors.append( ( nextState, action, 0) )
+            #pos = 0
+            #self.corners[pos]
+            print(self.corners[pos])
+            if not self.walls[nextx][nexty] or :
+                nextState = (nextx, nexty)
+                #cost = self.costFn(nextState)
+                successors.append( ( nextState, action, 0) )
+
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
