@@ -431,27 +431,33 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     #        print(x)
 
     #unvisited_corners = []
-    distance_corners = [0,0,0,0]
-    for i in range(len(corners_visited)):
-        #if not corners_visited[i]:
-        distance_corners[i]= util.manhattanDistance(corners[i], current_position)
+    #print(problem.isGoalState(state))
 
-    shortest = distance_corners[0]
+    distance_from_corners = [0,0,0,0]
+    #distance_from_goals  = []
+    for i in range(len(corners_visited)):
+        #distance_from_goals.append(util.manhattanDistance())
+        #if not corners_visited[i]:
+        distance_from_corners[i]= util.manhattanDistance(current_position, corners[i])
+
+    shortest = distance_from_corners[0]
     shortest_pos = 0
     reached =  False
-    for element in range(len(distance_corners)):
-        if distance_corners[element] < shortest:
-            shortest = distance_corners[element] 
-            shortest_pos = element
+    shortest = max(distance_from_corners) # ¿¿¿¿Por que la máxima???
+    #or element in range(len(distance_from_corners)):
+      #  if distance_from_corners[element] > shortest:
+       #     shortest = distance_from_corners[element] 
+       #     shortest_pos = element   
 
-    print(current_position,  corners , corners_visited, distance_corners)
-    print("my shortests and pos",shortest, shortest_pos)
+    print(current_position,  corners , corners_visited, distance_from_corners)
+    print("my shortests and pos",shortest, shortest_pos, max(distance_from_corners))
     # ir a la distancia más cercana de las esquinas 
 
     #shortest_path_value = util.manhattanDistance(corners[2], current_position)
 
     if not corners_visited[shortest_pos]: 
         shortest_path_value = shortest
+        
     return shortest_path_value 
 
 class AStarCornersAgent(SearchAgent):
