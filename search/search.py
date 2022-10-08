@@ -272,7 +272,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     # set an array for storing  pacman actions
     pcm_actions = []
 
-    #set initical Cost
+    # set initical Cost
     initial_cost = 0 + heuristic(start_state, problem)
 
     # I create a node in which will be stored state and actions 
@@ -288,7 +288,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
         # (as it is a queue) 
         node = frontier.pop()
         
-        #node 
+        # node 
         current_state = node[0]
         actions = node[1]
  
