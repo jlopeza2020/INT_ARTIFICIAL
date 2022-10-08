@@ -417,48 +417,25 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-
-    #value for the shortest path (heuristic)
-    shortest_path_value = 0
+    path_value = 0
 
     current_position = state[0] # (x , y)
     corners_visited = state[1]  # [Boolean, Boolean, Boolean, Boolean]
 
-    #unvisited_corners = []
-    #for i in range(len(corners_visited)):
-    #    if not corners_visited[i]:
-    #        x = unvisited_corners.append(corners[i])
-    #        print(x)
+    if problem.isGoalState(state):
+        path_value = 0
+    else: 
 
-    #unvisited_corners = []
-    #print(problem.isGoalState(state))
+        distance_from_corners = []
 
-    distance_from_corners = [0,0,0,0]
-    #distance_from_goals  = []
-    for i in range(len(corners_visited)):
-        #distance_from_goals.append(util.manhattanDistance())
-        #if not corners_visited[i]:
-        distance_from_corners[i]= util.manhattanDistance(current_position, corners[i])
+        # enumerate corners_visited ((0,Boolean), (1, Boolean), (2, Boolean), (3, Boolean))
+        for index,value in enumerate(corners_visited):
+            if not value: # not visited corner
+                distance_from_corners.append(util.manhattanDistance(current_position,corners[index]))
 
-    shortest = distance_from_corners[0]
-    shortest_pos = 0
-    reached =  False
-    shortest = max(distance_from_corners) # ¿¿¿¿Por que la máxima???
-    #or element in range(len(distance_from_corners)):
-      #  if distance_from_corners[element] > shortest:
-       #     shortest = distance_from_corners[element] 
-       #     shortest_pos = element   
-
-    print(current_position,  corners , corners_visited, distance_from_corners)
-    print("my shortests and pos",shortest, shortest_pos, max(distance_from_corners))
-    # ir a la distancia más cercana de las esquinas 
-
-    #shortest_path_value = util.manhattanDistance(corners[2], current_position)
-
-    if not corners_visited[shortest_pos]: 
-        shortest_path_value = shortest
-        
-    return shortest_path_value 
+        path_value = max(distance_from_corners)
+  
+    return path_value 
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
