@@ -433,7 +433,7 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
             if not value: # not visited corner
                 distance_from_corners.append(util.manhattanDistance(current_position,corners[index]))
 
-        path_value = max(distance_from_corners)
+        path_value = max(distance_from_corners) # why no min()??
   
     return path_value 
 
@@ -529,7 +529,26 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    food_path_value = 0
+
+    # returns a list with the coordinates of where the food is 
+    food_list = foodGrid.asList()
+
+    problem.heuristicInfo['wallCount'] = problem.walls.count()
+
+    #if it has reached the goal there is no distance to the food
+    if problem.isGoalState(state):
+        food_path_value = 0
+    
+    else: 
+        distance_food= []
+        for element in food_list:
+            #distance_food.append(util.manhattanDistance(position,element))
+            distance_food.append(mazeDistance(position,element, problem.startingGameState))
+
+        food_path_value = max(distance_food) #why no with min????
+
+    return food_path_value
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
