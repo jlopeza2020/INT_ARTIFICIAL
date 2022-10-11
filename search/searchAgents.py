@@ -378,7 +378,7 @@ class CornersProblem(search.SearchProblem):
                 if next_state == self.corners[3]:
                     corners_visited[3] = True
                 
-                # fix the cost to 1 as it is defined in the statements
+                # fix the cost to 1 as it is defined in the statement
                 cost = 1
                 successors.append(((next_state, corners_visited), action, cost))
 
@@ -529,7 +529,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    food_path_value = 0
+    food_path_value = 0 #heuristic
 
     # returns a list with the coordinates of where the food is 
     food_list = foodGrid.asList()
@@ -546,6 +546,15 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
             #distance_food.append(util.manhattanDistance(position,element))
             distance_food.append(mazeDistance(position,element, problem.startingGameState))
 
+        
+        #food_min_path_value = min(distance_food)
+        #print("min value",food_min_path_value)
+        #food_max_path_value = max(distance_food)
+        #print("max value",food_max_path_value)
+
+        #total_value = food_max_path_value - food_min_path_value 
+        #if(total_value > 10):
+        
         food_path_value = max(distance_food) #why no with min????
 
     return food_path_value
@@ -579,7 +588,8 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # return the path to the closest dot
+        return search.uniformCostSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -615,8 +625,14 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
 
+        # return True if the pacman position is equal 
+        # to any of the food's position so it arrived to the goal
+        is_goal_reached = (state in self.food.asList())
+
+        return  is_goal_reached
+
+            
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:
     """
     Returns the maze distance between any two points, using the search functions
