@@ -13,7 +13,7 @@
 
 
 """
-This file contains all of the agents that can be selected to control Pacman.  To
+This file contains all of the agents that can be selected to control Pacman. To
 select an agent, use the '-p' option when running pacman.py.  Arguments can be
 passed to your agent using '-a'.  For example, to load a SearchAgent that uses
 depth first search (dfs), run the following command:
@@ -61,8 +61,8 @@ class GoWestAgent(Agent):
 class SearchAgent(Agent):
     """
     This very general search agent finds a path using a supplied search
-    algorithm for a supplied search problem, then returns actions to follow that
-    path.
+    algorithm for a supplied search problem, then returns actions to follow 
+    that path.
 
     As a default, this agent runs DFS on a PositionSearchProblem to find
     location (1,1)
@@ -293,10 +293,12 @@ class CornersProblem(search.SearchProblem):
         # in initializing the problem
         "*** YOUR CODE HERE ***"
         
+        # set an inmutable array with four positions 
+        # that define the four corners
         corners_visited = (False, False, False, False)
         
-        # check if starting point coincide with any of the corners
-        # and set it as True
+        # check if starting point coincide with 
+        # any of the corners and set it as True
         if self.startingPosition == self.corners[0]:
             corners_visited[0] = True
         
@@ -309,7 +311,8 @@ class CornersProblem(search.SearchProblem):
         if self.startingPosition == self.corners[3]:
             corners_visited[3] = True
         
-        # now we add corners visited to the starting point
+        # now, the stating state is composed by the 
+        # initial position and the array of the cornes
         self.startingState = (self.startingPosition, corners_visited)
 
     def getStartState(self):
@@ -318,6 +321,7 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
+        # to get the start state we should return the starting state itself 
         return self.startingState
 
     def isGoalState(self, state):
@@ -326,11 +330,13 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         # as it is defined in the init, now the state is 
-        # (startingPOsition, corners_visited) so we have to extract the corners visited
-        # from the second position of the tuple
+        # (startingPOsition, corners_visited) so we have to extract 
+        # the corners visited from the second position of the tuple
         corners_visited = state[1]
         reached_all_corners = False
 
+        # the goal will be reached (return True) 
+        # when all corners are reached (set as True)
         if corners_visited[0] and corners_visited[1] and corners_visited[2] and corners_visited[3]:
             reached_all_corners = True
 
@@ -358,14 +364,17 @@ class CornersProblem(search.SearchProblem):
 
             "*** YOUR CODE HERE ***"
             
-            if not self.walls[nextx][nexty]:
+            # if not a wall has been hit
+            if not hitsWall:
                 
+                # store the new state with next x and next y
                 next_state = (nextx, nexty)
                 
                 # have to create a new list to create a copy
                 # else it won't return correct number of moves
                 corners_visited = list(state[1])
 
+                # check if the next state is any of the corners
                 if next_state == self.corners[0]:
                     corners_visited[0] = True
                 
@@ -378,7 +387,7 @@ class CornersProblem(search.SearchProblem):
                 if next_state == self.corners[3]:
                     corners_visited[3] = True
                 
-                # fix the cost to 1 as it is defined in the statement
+                # set the cost to 1 as it is defined in the statement
                 cost = 1
                 successors.append(((next_state, corners_visited), action, cost))
 
@@ -414,27 +423,43 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     """
     corners = problem.corners # These are the corner coordinates 
                               # ((1,1), (1, top), (right, 1), (right, top))
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    walls = problem.walls # These are the walls of the maze, as a Grid(game.py)
 
     "*** YOUR CODE HERE ***"
-    path_value = 0
 
     current_position = state[0] # (x , y)
     corners_visited = state[1]  # [Boolean, Boolean, Boolean, Boolean]
 
+    # it we have reached to the goal means that the distance is 0 
     if problem.isGoalState(state):
         path_value = 0
     else: 
 
         distance_from_corners = []
 
-        # enumerate corners_visited ((0,Boolean), (1, Boolean), (2, Boolean), (3, Boolean))
+        # enumerate corners_visited:  
+        # ((0,Boolean), (1, Boolean), (2, Boolean), (3, Boolean))
         for index,value in enumerate(corners_visited):
-            if not value: # not visited corner
+            if not value: # not a visited corner
                 distance_from_corners.append(util.manhattanDistance(current_position,corners[index]))
 
-        path_value = max(distance_from_corners) # why no min()??
-  
+        min_path_value = min(distance_from_corners)
+        max_path_value = max(distance_from_corners)
+
+        # I decided to implement an heuristic to consider 
+        # whether pacman stays near or far away from corners
+        total_value = max_path_value - min_path_value 
+
+        # it total_value > 10 that means that the pacman is far away 
+        # from the farthest corner so to be consistent, in this case 
+        # pacman should go to the farthest corner and pacman won't 
+        # have unsteady moves.
+        # Otherwise pacman will go to the nearnest corner.
+        if(total_value > 10):
+            path_value = max_path_value
+        else:
+            path_value = min_path_value
+          
     return path_value 
 
 class AStarCornersAgent(SearchAgent):
@@ -529,34 +554,44 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    food_path_value = 0 #heuristic
 
     # returns a list with the coordinates of where the food is 
     food_list = foodGrid.asList()
 
+    # count the walls once and store that value 
     problem.heuristicInfo['wallCount'] = problem.walls.count()
 
-    #if it has reached the goal there is no distance to the food
+    # if it has reached the goal there is no distance to the food
     if problem.isGoalState(state):
         food_path_value = 0
-    
     else: 
         distance_food= []
+
+        # in this case I decided to use maze distance because it takes into 
+        # account terms like walls and other things that manhatthan just
+        # calculates a distance using : sum of absolute difference between 
+        # the measures in all dimensions of two points.
         for element in food_list:
-            #distance_food.append(util.manhattanDistance(position,element))
             distance_food.append(mazeDistance(position,element, problem.startingGameState))
 
         
-        #food_min_path_value = min(distance_food)
-        #print("min value",food_min_path_value)
-        #food_max_path_value = max(distance_food)
-        #print("max value",food_max_path_value)
+        food_min_path_value = min(distance_food)
+        food_max_path_value = max(distance_food)
 
-        #total_value = food_max_path_value - food_min_path_value 
-        #if(total_value > 10):
+        # I decided to implement an heuristic to consider 
+        # whether pacman stays near or far away from food
+        total_value = food_max_path_value - food_min_path_value 
+
+        # it total_value > 10 that means that the pacman is far away 
+        # from the farthest food so to be consistent, in this case 
+        # pacman should go to the farthest food and pacman won't 
+        # have unsteady moves.
+        # Otherwise pacman will go to the nearnest food.
+        if(total_value > 10):  
+            food_path_value = food_max_path_value
+        else:
+            food_path_value = food_min_path_value
         
-        food_path_value = max(distance_food) #why no with min????
-
     return food_path_value
 
 class ClosestDotSearchAgent(SearchAgent):
