@@ -215,43 +215,20 @@ class PositionSearchProblem(search.SearchProblem):
         return successors
 
     def getCostOfActions(self, actions):
-        "*** MODIFICACION 2 ***"
-        """ Calculates cost for the acctions taken by the pacman
-            ● Cost of move to the North: 0
-            ● Cost of a move to SOuth, East, West: 2x cost.
-        If those actions include an illegal move, return 999999.
         """
-        # The nodes expanded before modification were: 
-        # - In tinyMaze: 14
-        # - In mediumMaze: 221
-        # - In bigMaze: 549
-        
-        # The nodes expanded after  modification were: 
-        # - In tinyMaze: 8
-        # - In mediumMaze: 78
-        # - In bigMaze: 446
-
-        # To conclude, we can say that the nodes expanded have
-        # been reduced soy it is easier and takes less time for the 
-        # pacman to reach its destination
-        
-        if actions == None:
-            return 999999
-
+        Returns the cost of a particular sequence of actions. If those actions
+        include an illegal move, return 999999.
+        """
+        if actions == None: return 999999
         x,y= self.getStartState()
         cost = 0
-        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            if action in Directions.NORTH:
-                cost = 0
-            else: 
-
-                # Check figure out the next state and see whether its' legal
-                dx, dy = Actions.directionToVector(action)
-                x, y = int(x + dx), int(y + dy)
-                if self.walls[x][y]: return 999999
-                cost += 2*self.costFn((x,y))
+        for action in actions:
+            # Check figure out the next state and see whether its' legal
+            dx, dy = Actions.directionToVector(action)
+            x, y = int(x + dx), int(y + dy)
+            if self.walls[x][y]: return 999999
+            cost += self.costFn((x,y))
         return cost
-
 
 class StayEastSearchAgent(SearchAgent):
     """
@@ -708,24 +685,3 @@ def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pa
     assert not walls[x2][y2], 'point2 is a wall: ' + str(point2)
     prob = PositionSearchProblem(gameState, start=point1, goal=point2, warn=False, visualize=False)
     return len(search.bfs(prob))
-
-def chebyshovDistance(position, problem, info={}):
-    "*** MODIFICACION 1 ***"
-    """Calculates the Chebyshov distance heuristic,
-        return the maximun between x and y 
-    """
-    xy1 = position
-    xy2 = problem.goal
-
-    x_distance = abs(xy2[0] - xy1[0])
-    y_distance = abs(xy2[1] - xy1[1])
-
-    if (x_distance > y_distance):
-        max_distance = x_distance
-    else:
-        max_distance = y_distance
-
-    return max_distance
-
-
-
