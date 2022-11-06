@@ -53,7 +53,21 @@ def sentence1() -> Expr:
     (not A) or (not B) or C
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    # Initialize 3 logic expressions
+    A = logic.Expr('A')
+    B = logic.Expr('B')
+    C = logic.Expr('C')
+
+    # Define sentences
+    Fst_stc = logic.disjoin(A,B)
+    Snd_stc = ~A % logic.disjoin(~B, C)
+    Trd_stc = logic.disjoin(~A, ~B,C)
+
+    return logic.conjoin(Fst_stc,Snd_stc,Trd_stc)
+
+
+
     "*** END YOUR CODE HERE ***"
 
 
@@ -66,7 +80,22 @@ def sentence2() -> Expr:
     (not D) implies C
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    # Initialize 4 logic expressions
+    A = logic.Expr('A')
+    B = logic.Expr('B')
+    C = logic.Expr('C')
+    D = logic.Expr('D')
+
+    # Define sentences
+    Fst_stc = C % (B | D)
+    Snd_stc = A >> (~B & ~D)
+    Trd_stc = ~(B & ~C) >> A
+    Frth_stc = ~D >> C
+
+    return logic.conjoin(Fst_stc,Snd_stc,Trd_stc,Frth_stc)
+
+
     "*** END YOUR CODE HERE ***"
 
 
@@ -84,7 +113,20 @@ def sentence3() -> Expr:
     (Project update: for this question only, [0] and _t are both acceptable.)
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    # Initialize 4 logic expressions
+    Alive_1 = logic.PropSymbolExpr("PacmanAlive_1")
+    Alive_0 = logic.PropSymbolExpr("PacmanAlive_0")
+    Born = logic.PropSymbolExpr("PacmanBorn_0")
+    Killed = logic.PropSymbolExpr("PacmanKilled_0")
+
+    # Define sentences
+    Alive = Alive_1 % ((Alive_0 & ~Killed) | (~Alive_0 & Born))
+    Cant_t_0  = ~(Alive_0 & Born)
+    Born_t_0 = Born
+
+    return logic.conjoin(Alive,Cant_t_0,Born_t_0) 
+
     "*** END YOUR CODE HERE ***"
 
 def findModel(sentence: Expr) -> Dict[Expr, bool]:
@@ -109,14 +151,29 @@ def findModelCheck() -> Dict[Any, bool]:
         def __repr__(self):
             return self.variable_name
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # returns the representation of dummyClass
+    # which recreates the example looking for
+    return pycoSAT(to_cnf('A')) 
     "*** END YOUR CODE HERE ***"
 
 def entails(premise: Expr, conclusion: Expr) -> bool:
     """Returns True if the premise entails the conclusion and False otherwise.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    # if premise entails conclusion if only if (premise & ~conclusion)is not satisfied
+    # findModel returns true when the expr is satisfied, so in this case we want a
+    # true output when findModel returns False
+
+    if findModel(premise & ~conclusion) is False:
+
+        is_entail = True
+    else: 
+        is_entail = False
+
+    return is_entail
+    
+
     "*** END YOUR CODE HERE ***"
 
 def plTrueInverse(assignments: Dict[Expr, bool], inverse_statement: Expr) -> bool:
@@ -124,7 +181,17 @@ def plTrueInverse(assignments: Dict[Expr, bool], inverse_statement: Expr) -> boo
     pl_true may be useful here; see logic.py for its description.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    # pl_true return true if the propositional 
+    # logic expression is true in the model
+    if pl_true(~inverse_statement,assignments) is True:
+
+        is_inverse = True
+    else: 
+        is_inverse = False
+
+    return is_inverse
+
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
