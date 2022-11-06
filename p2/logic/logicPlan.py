@@ -153,7 +153,7 @@ def findModelCheck() -> Dict[Any, bool]:
     "*** BEGIN YOUR CODE HERE ***"
     # returns the representation of dummyClass
     # which recreates the example looking for
-    return pycoSAT(to_cnf('A')) 
+    return pycoSAT(to_cnf('A'))
     "*** END YOUR CODE HERE ***"
 
 def entails(premise: Expr, conclusion: Expr) -> bool:
@@ -184,7 +184,8 @@ def plTrueInverse(assignments: Dict[Expr, bool], inverse_statement: Expr) -> boo
     
     # pl_true return true if the propositional 
     # logic expression is true in the model
-    if pl_true(~inverse_statement,assignments) is True:
+
+    if pl_true(~inverse_statement,assignments):
 
         is_inverse = True
     else: 
@@ -217,7 +218,9 @@ def atLeastOne(literals: List[Expr]) -> Expr:
     True
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    # if it says at least one means or logic 
+    return logic.disjoin(literals)
     "*** END YOUR CODE HERE ***"
 
 
@@ -229,7 +232,16 @@ def atMostOne(literals: List[Expr]) -> Expr:
     itertools.combinations may be useful here.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    conjunctions = []
+    for literal in literals:
+        for in_literal in literals:
+            if literal != in_literal:
+                disjunction = logic.disjoin(~literal, ~in_literal)
+                conjunctions.append(disjunction)
+
+    # means return a and logic single Expr sentence
+    return logic.conjoin(conjunctions)
+
     "*** END YOUR CODE HERE ***"
 
 
@@ -240,7 +252,27 @@ def exactlyOne(literals: List[Expr]) -> Expr:
     the expressions in the list is true.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    conjunctions = []
+    true_list = []
+    for literal in literals:
+        # add all literals to the true_list 
+        true_list.append(literal)
+
+        reached_literal = False
+        for in_literal in literals:
+            if (reached_literal):
+                disjunction = logic.disjoin(~literal, ~in_literal)
+                conjunctions.append(disjunction)
+            if literal == in_literal:
+                reached_literal = True
+
+    # exactly one must be true
+    one_must_be_true = logic.disjoin(true_list)
+    conjunctions.append(one_must_be_true)
+
+    # exactly one must be true 
+    return logic.conjoin(conjunctions)
+
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
