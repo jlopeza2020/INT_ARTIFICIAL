@@ -305,7 +305,14 @@ def pacmanSuccessorAxiomSingle(x: int, y: int, time: int, walls_grid: List[List[
         return None
     
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    current = logic.PropSymbolExpr(pacman_str, x, y, t)
+
+    prev_states = atLeastOne(possible_causes)
+    final_axiom = current % prev_states
+    # print final_axiom
+    return final_axiom
+
     "*** END YOUR CODE HERE ***"
 
 
@@ -376,7 +383,23 @@ def pacphysicsAxioms(t: int, all_coords: List[Tuple], non_outer_wall_coords: Lis
     pacphysics_sentences = []
 
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    corners = []
+
+    #for coord in all_coords:
+    #    for non_outer in non_outer_wall_coords:
+    
+    # FIX THIS!!!!
+    #        if coord[0] == wall[0] and coord[1] == wall[1]:
+    #            disjunction = logic.disjoin(~coord[0], ~coord[1])
+    #            pacphysics_sentences.append(disjunction)
+    #if coord[0]
+    #pacphysics_sentences.append(exactlyOne()) # Pacman is at exactly one of the squares at timestep t.
+    #pacphysics_sentences.append(exactlyOne()) # Pacman takes exactly one action at timestep t.
+
+    pacphysics_sentences.append(sensorModel)
+    pacphysics_sentences.append(successorAxioms)
+             
+
     "*** END YOUR CODE HERE ***"
 
     return conjoin(pacphysics_sentences)
