@@ -153,7 +153,7 @@ def findModelCheck() -> Dict[Any, bool]:
     "*** BEGIN YOUR CODE HERE ***"
     # returns the representation of dummyClass
     # which recreates the example looking for
-    return pycoSAT(to_cnf('A'))
+    return {dummyClass('a'): True}
     "*** END YOUR CODE HERE ***"
 
 def entails(premise: Expr, conclusion: Expr) -> bool:
@@ -233,11 +233,11 @@ def atMostOne(literals: List[Expr]) -> Expr:
     """
     "*** BEGIN YOUR CODE HERE ***"
     conjunctions = []
-    for literal in literals:
-        for in_literal in literals:
-            if literal != in_literal:
-                disjunction = logic.disjoin(~literal, ~in_literal)
-                conjunctions.append(disjunction)
+    list_conj = list(itertools.combinations(literals, 2))
+ 
+    for element in list_conj:
+        disjunction = logic.disjoin(~element[0], ~element[1])
+        conjunctions.append(disjunction)
 
     # means return a and logic single Expr sentence
     return logic.conjoin(conjunctions)
