@@ -254,6 +254,8 @@ def exactlyOne(literals: List[Expr]) -> Expr:
     "*** BEGIN YOUR CODE HERE ***"
     conjunctions = []
     true_list = []
+    # revisarrr
+    #list_conj = list(literals)
     for literal in literals:
         # add all literals to the true_list 
         true_list.append(literal)
@@ -306,12 +308,12 @@ def pacmanSuccessorAxiomSingle(x: int, y: int, time: int, walls_grid: List[List[
     
     "*** BEGIN YOUR CODE HERE ***"
 
-    current = logic.PropSymbolExpr(pacman_str, x, y, t)
+    current = logic.PropSymbolExpr(pacman_str, x, y, t=now)
 
-    prev_states = atLeastOne(possible_causes)
-    final_axiom = current % prev_states
-    # print final_axiom
+    final_axiom = current % disjoin(possible_causes)
+
     return final_axiom
+
 
     "*** END YOUR CODE HERE ***"
 
@@ -383,7 +385,7 @@ def pacphysicsAxioms(t: int, all_coords: List[Tuple], non_outer_wall_coords: Lis
     pacphysics_sentences = []
 
     "*** BEGIN YOUR CODE HERE ***"
-    corners = []
+    #corners = []
 
     #for coord in all_coords:
     #    for non_outer in non_outer_wall_coords:
@@ -396,8 +398,23 @@ def pacphysicsAxioms(t: int, all_coords: List[Tuple], non_outer_wall_coords: Lis
     #pacphysics_sentences.append(exactlyOne()) # Pacman is at exactly one of the squares at timestep t.
     #pacphysics_sentences.append(exactlyOne()) # Pacman takes exactly one action at timestep t.
 
-    pacphysics_sentences.append(sensorModel)
-    pacphysics_sentences.append(successorAxioms)
+    
+    #pacphysics_sentences.append(sensorModel)
+    #pacphysics_sentences.append(successorAxioms)
+
+    for coord in all_coords:
+        pacphysics_sentences.append(PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t))
+        
+    for in_coord in non_outer_wall_coords:
+        pacphysics_sentences.append(exactlyOne(PropSymbolExpr(pacman_str, in_coord[0], in_coord[1], time=t)))
+
+    for direction in DIRECTIONS:
+        pacphysics_sentences.append(exactlyOne(PropSymbolExpr(pacman_str, direction, time=t)))
+        
+    if sensorModel is not None:
+        pacphysics_sentences.append(sensorModel)
+    if successorAxioms is not None:
+        pacphysics_sentences.append(successorAxioms)
              
 
     "*** END YOUR CODE HERE ***"
@@ -433,7 +450,10 @@ def checkLocationSatisfiability(x1_y1: Tuple[int, int], x0_y0: Tuple[int, int], 
     KB.append(conjoin(map_sent))
 
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # añadir a la base de conocimiento
+    model1 = []
+    model1 = pacphysicsAxioms(1,all_coords, non_outer_wall_coords)
+    return conjoin(model1,~model1)
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
