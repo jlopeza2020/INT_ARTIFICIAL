@@ -289,7 +289,7 @@ def pacmanSuccessorAxiomSingle(x: int, y: int, time: int, walls_grid: List[List[
     
     "*** BEGIN YOUR CODE HERE ***"
 
-    current = logic.PropSymbolExpr(pacman_str, x, y, t=now)
+    current = logic.PropSymbolExpr(pacman_str, x, y, time=now)
 
     final_axiom = current % disjoin(possible_causes)
 
@@ -369,7 +369,9 @@ def pacphysicsAxioms(t: int, all_coords: List[Tuple], non_outer_wall_coords: Lis
 
     coords = []
     for coord in all_coords:
-        coords.append(PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t))
+        if PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t): 
+            coords.append(PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t))
+
         
     in_coords = []
     for in_coord in non_outer_wall_coords:
@@ -380,29 +382,27 @@ def pacphysicsAxioms(t: int, all_coords: List[Tuple], non_outer_wall_coords: Lis
     dirs = []
     for direction in DIRECTIONS:
         dirs.append((PropSymbolExpr(direction, time=t)))
-
     exactlyOne(dirs)
     
     for x in coords:
-
         pacphysics_sentences.append(x)
         
     for y in in_coords:
-
         pacphysics_sentences.append(y)
         
     for z in dirs:
-
         pacphysics_sentences.append(z)
 
     if sensorModel is not None:
         pacphysics_sentences.append(sensorModel)
+
+    print("sucessorAxioms", successorAxioms(t,walls_grid, non_outer_wall_coords))
     if successorAxioms is not None:
-        pacphysics_sentences.append(successorAxioms)
+        pacphysics_sentences.append(successorAxioms(t,walls_grid, non_outer_wall_coords))
              
-
+    print("pacphysics sentences",pacphysics_sentences)
     "*** END YOUR CODE HERE ***"
-
+    
     return conjoin(pacphysics_sentences)
 
 
@@ -434,16 +434,27 @@ def checkLocationSatisfiability(x1_y1: Tuple[int, int], x0_y0: Tuple[int, int], 
     KB.append(conjoin(map_sent))
 
     "*** BEGIN YOUR CODE HERE ***"
-    # añadir a la base de conocimiento
+
     t = 1
-    KB.append(pacphysicsAxioms(t, walls_list, non_outer_wall_coords))
+    KB.append(pacphysicsAxioms(t, walls_list, non_outer_wall_coords, walls_grid, successorAxioms=allLegalSuccessorAxioms))
     KB.append((x0,y0))
     KB.append(action0)
     KB.append(action1)
 
+    conjoin(KB)
+
     conclusion = PropSymbolExpr(pacman_str, x1, y1, time=t)
-    model1 = findModel(conjoin(KB , conclusion))
-    model2 = findModel(conjoin(KB, ~conclusion))
+
+    
+    for element in KB:
+        print("i am an element", element)
+
+        if findModel(element & conclusion): 
+            print("soy TRUE", element)
+
+
+    #model1 = findModel(conjoin(KB ,conclusion))
+    #model2 = findModel(conjoin(KB, ~conclusion))
 
     return conjoin(model1,model2)
     "*** END YOUR CODE HERE ***"
