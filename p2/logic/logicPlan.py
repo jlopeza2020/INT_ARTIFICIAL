@@ -441,20 +441,23 @@ def checkLocationSatisfiability(x1_y1: Tuple[int, int], x0_y0: Tuple[int, int], 
 
     conclusion = PropSymbolExpr(pacman_str, x1, y1, time=t)
 
-    
     model1 = []
     model2 = []
+
     for element in KB:
-        print("i am an element", element)
+        model1.append(element + conclusion)
+        model2.append(element + ~conclusion)
 
-        if findModel(element & conclusion): 
-            print("soy TRUE", element)
-            model1.append(element)
+        #print("i am an element", element)
+
+        #if findModel(element & conclusion): 
+            #print("soy TRUE", element)
+            #model1.append(element)
         
-        if findModel(element & ~conclusion): 
-            print("soy FALSE", element)
-            model2.append(element)
-
+        #if findModel(element & ~conclusion): 
+            #print("soy FALSE", element)
+            #model2.append(element)
+    
     #model1 = findModel(conjoin(KB ,conclusion))
     #model2 = findModel(conjoin(KB, ~conclusion))
 
