@@ -103,12 +103,9 @@ def sentence3() -> Expr:
     """Using the symbols PacmanAlive_1 PacmanAlive_0, PacmanBorn_0, and PacmanKilled_0,
     created using the PropSymbolExpr constructor, return a PropSymbolExpr
     instance that encodes the following English sentences (in this order):
-
     Pacman is alive at time 1 if and only if Pacman was alive at time 0 and it was
     not killed at time 0 or it was not alive at time 0 and it was born at time 0.
-
     Pacman cannot both be alive at time 0 and be born at time 0.
-
     Pacman is born at time 0.
     (Project update: for this question only, [0] and _t are both acceptable.)
     """
@@ -252,28 +249,9 @@ def exactlyOne(literals: List[Expr]) -> Expr:
     the expressions in the list is true.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    conjunctions = []
-    true_list = []
-    # revisarrr
-    #list_conj = list(literals)
-    for literal in literals:
-        # add all literals to the true_list 
-        true_list.append(literal)
+    # means both must be true 
+    return logic.conjoin(atLeastOne(literals), atMostOne(literals))
 
-        reached_literal = False
-        for in_literal in literals:
-            if (reached_literal):
-                disjunction = logic.disjoin(~literal, ~in_literal)
-                conjunctions.append(disjunction)
-            if literal == in_literal:
-                reached_literal = True
-
-    # exactly one must be true
-    one_must_be_true = logic.disjoin(true_list)
-    conjunctions.append(one_must_be_true)
-
-    # exactly one must be true 
-    return logic.conjoin(conjunctions)
 
     "*** END YOUR CODE HERE ***"
 
@@ -308,7 +286,7 @@ def pacmanSuccessorAxiomSingle(x: int, y: int, time: int, walls_grid: List[List[
     
     "*** BEGIN YOUR CODE HERE ***"
 
-    current = logic.PropSymbolExpr(pacman_str, x, y, t=now)
+    current = logic.PropSymbolExpr(pacman_str, x, y, time=now)
 
     final_axiom = current % disjoin(possible_causes)
 
@@ -385,40 +363,43 @@ def pacphysicsAxioms(t: int, all_coords: List[Tuple], non_outer_wall_coords: Lis
     pacphysics_sentences = []
 
     "*** BEGIN YOUR CODE HERE ***"
-    #corners = []
 
-    #for coord in all_coords:
-    #    for non_outer in non_outer_wall_coords:
-    
-    # FIX THIS!!!!
-    #        if coord[0] == wall[0] and coord[1] == wall[1]:
-    #            disjunction = logic.disjoin(~coord[0], ~coord[1])
-    #            pacphysics_sentences.append(disjunction)
-    #if coord[0]
-    #pacphysics_sentences.append(exactlyOne()) # Pacman is at exactly one of the squares at timestep t.
-    #pacphysics_sentences.append(exactlyOne()) # Pacman takes exactly one action at timestep t.
-
-    
-    #pacphysics_sentences.append(sensorModel)
-    #pacphysics_sentences.append(successorAxioms)
-
+    coords = []
     for coord in all_coords:
-        pacphysics_sentences.append(PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t))
-        
-    for in_coord in non_outer_wall_coords:
-        pacphysics_sentences.append(exactlyOne(PropSymbolExpr(pacman_str, in_coord[0], in_coord[1], time=t)))
+        if PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t): 
+            coords.append(PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t))
 
-    for direction in DIRECTIONS:
-        pacphysics_sentences.append(exactlyOne(PropSymbolExpr(pacman_str, direction, time=t)))
         
+    in_coords = []
+    for in_coord in non_outer_wall_coords:
+        in_coords.append(PropSymbolExpr(pacman_str, in_coord[0], in_coord[1], time=t))
+
+    exactlyOne(in_coords)
+
+    dirs = []
+    for direction in DIRECTIONS:
+        dirs.append((PropSymbolExpr(direction, time=t)))
+    exactlyOne(dirs)
+    
+    for x in coords:
+        pacphysics_sentences.append(x)
+        
+    for y in in_coords:
+        pacphysics_sentences.append(y)
+        
+    for z in dirs:
+        pacphysics_sentences.append(z)
+
     if sensorModel is not None:
         pacphysics_sentences.append(sensorModel)
+
+    print("sucessorAxioms", successorAxioms(t,walls_grid, non_outer_wall_coords))
     if successorAxioms is not None:
-        pacphysics_sentences.append(successorAxioms)
+        pacphysics_sentences.append(successorAxioms(t,walls_grid, non_outer_wall_coords))
              
-
+    print("pacphysics sentences",pacphysics_sentences)
     "*** END YOUR CODE HERE ***"
-
+    
     return conjoin(pacphysics_sentences)
 
 
@@ -450,10 +431,34 @@ def checkLocationSatisfiability(x1_y1: Tuple[int, int], x0_y0: Tuple[int, int], 
     KB.append(conjoin(map_sent))
 
     "*** BEGIN YOUR CODE HERE ***"
-    # añadir a la base de conocimiento
+
+    t = 1
+    KB.append(pacphysicsAxioms(t, walls_list, non_outer_wall_coords, walls_grid, successorAxioms=allLegalSuccessorAxioms))
+    KB.append(PropSymbolExpr(pacman_str, x0, y0, time=t))
+    KB.append(PropSymbolExpr(action0, time=t))
+    KB.append(PropSymbolExpr(action1, time=t))
+
+    conclusion = PropSymbolExpr(pacman_str, x1, y1, time=t)
+
+    
     model1 = []
-    model1 = pacphysicsAxioms(1,all_coords, non_outer_wall_coords)
-    return conjoin(model1,~model1)
+    model2 = []
+    for element in KB:
+        print("i am an element", element)
+
+        if findModel(element & conclusion): 
+            print("soy TRUE", element)
+            model1.append(element)
+        
+        if findModel(element & ~conclusion): 
+            print("soy FALSE", element)
+            model2.append(element)
+
+
+    #model1 = findModel(conjoin(KB ,conclusion))
+    #model2 = findModel(conjoin(KB, ~conclusion))
+
+    return conjoin(model1,model2)
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
@@ -777,7 +782,6 @@ class PlanningProblem:
     """
     This class outlines the structure of a planning problem, but doesn't implement
     any of the methods (in object-oriented terminology: an abstract class).
-
     You do not need to change anything in this class, ever.
     """
 
@@ -793,6 +797,7 @@ class PlanningProblem:
         Only used in problems that use ghosts (FoodGhostPlanningProblem)
         """
         util.raiseNotDefined()
+        
         
     def getGoalState(self):
         """
