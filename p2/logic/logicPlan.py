@@ -434,40 +434,26 @@ def checkLocationSatisfiability(x1_y1: Tuple[int, int], x0_y0: Tuple[int, int], 
 
     t = 1
     KB.append(pacphysicsAxioms(t, walls_list, non_outer_wall_coords, walls_grid, successorAxioms=allLegalSuccessorAxioms))
-<<<<<<< HEAD
     KB.append(PropSymbolExpr(pacman_str, x0, y0, time=t))
     KB.append(PropSymbolExpr(action0, time=t))
     KB.append(PropSymbolExpr(action1, time=t))
-=======
-    KB.append((x0,y0))
-    KB.append(action0)
-    KB.append(action1)
 
-    conjoin(KB)
->>>>>>> 7f238b8194520ebea21a49714f824d034160bf0f
 
     conclusion = PropSymbolExpr(pacman_str, x1, y1, time=t)
 
     
-<<<<<<< HEAD
     model1 = []
     model2 = []
-=======
->>>>>>> 7f238b8194520ebea21a49714f824d034160bf0f
     for element in KB:
         print("i am an element", element)
 
         if findModel(element & conclusion): 
             print("soy TRUE", element)
-<<<<<<< HEAD
             model1.append(element)
         
         if findModel(element & ~conclusion): 
             print("soy FALSE", element)
             model2.append(element)
-=======
->>>>>>> 7f238b8194520ebea21a49714f824d034160bf0f
-
 
     #model1 = findModel(conjoin(KB ,conclusion))
     #model2 = findModel(conjoin(KB, ~conclusion))
