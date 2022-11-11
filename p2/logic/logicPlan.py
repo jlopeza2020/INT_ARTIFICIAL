@@ -525,21 +525,13 @@ def foodLogicPlan(problem) -> List:
     t0 = 0
     max_time = 50
     # pacman's localization when t = 0
-    #print(food)
-    #food_arr = []
-    #for food_pos in food: 
-        #for t in range(max_time):
-    #        if (PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t)):
-    #            KB.append(PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t))
-
     KB.append(PropSymbolExpr(pacman_str, x0, y0, time=t0))
 
     for t in range(max_time):
 
+        # set all food as true 
         for food_pos in food: 
-        #for t in range(max_time):
             if (PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t)):
-                #print("init", PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t))
                 KB.append(PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t))
 
         print("Time step",t)
@@ -549,15 +541,14 @@ def foodLogicPlan(problem) -> List:
         for in_coord in non_wall_coords: 
             in_coords.append(PropSymbolExpr(pacman_str, in_coord[0], in_coord[1], time=t))
         KB.append(exactlyOne(in_coords))
-        #print(exactlyOne(in_coords))
-        # pacman's goal food i f all are false 
+    
+        # pacman's goal food if all are false 
         objective = []
         for pos in non_wall_coords:
-            #print(~PropSymbolExpr(food_str, pos[0], pos[1], time=t))
             objective.append(~PropSymbolExpr(food_str, pos[0], pos[1], time=t))
         # use find model to prove if that goal can be true
         model = findModel(conjoin(KB + objective))
-        #print(model)
+
         if (model):
             return extractActionSequence(model, actions) # return the actions' sequence from the beginning 
 
