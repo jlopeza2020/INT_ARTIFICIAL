@@ -469,25 +469,29 @@ def positionLogicPlan(problem) -> List:
 
     for t in range(max_time):
         print("Time step",t)
-        in_coords = []
-        for in_coord in non_wall_coords:
-            in_coords.append(PropSymbolExpr(pacman_str, in_coord[0], in_coord[1], time=t))
 
+        # in all posible pacman's position, pacman should be in ExactlyOne square at time t
+        in_coords = []
+        for in_coord in non_wall_coords: 
+            in_coords.append(PropSymbolExpr(pacman_str, in_coord[0], in_coord[1], time=t))
         KB.append(exactlyOne(in_coords))
 
+        # paman's goal position 
         objective = PropSymbolExpr(pacman_str, xg, yg, time=t)
+        # use find model to prove if that goal can be true
         model = findModel(conjoin(KB + [objective]))
         if (model):
-            return extractActionSequence(model, actions)
+            return extractActionSequence(model, actions) # return the actions' sequence from the beginning 
 
-        acts = []
+        # pacman takes ExactlyOne action for each time t
+        pacman_actions = []
         for action in actions:
-            acts.append((PropSymbolExpr(action, time=t)))
-        KB.append(exactlyOne(acts))
+            pacman_actions.append((PropSymbolExpr(action, time=t)))
+        KB.append(exactlyOne(pacman_actions))
 
+        # transition model sentences 
         for pos in non_wall_coords:
             KB.append(pacmanSuccessorAxiomSingle(pos[0], pos[1], t+1, walls_grid))
-
 
     return None
     "*** END YOUR CODE HERE ***"
@@ -521,41 +525,57 @@ def foodLogicPlan(problem) -> List:
     t0 = 0
     max_time = 50
     # pacman's localization when t = 0
+    #print(food)
+    #food_arr = []
+    #for food_pos in food: 
+        #for t in range(max_time):
+    #        if (PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t)):
+    #            KB.append(PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t))
 
-    print(food)
     KB.append(PropSymbolExpr(pacman_str, x0, y0, time=t0))
 
-    
-    # comprobar cada posicion
     for t in range(max_time):
 
-        for food_pos in food:
-            PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t) % PropSymbolExpr(pacman_str,food_pos[0], food_pos[1], time=t)
-        
+        for food_pos in food: 
+        #for t in range(max_time):
+            if (PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t)):
+                #print("init", PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t))
+                KB.append(PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t))
+
         print("Time step",t)
+
+        # in all posible pacman's position, pacman should be in ExactlyOne square at time t
         in_coords = []
-        for in_coord in non_wall_coords:
-
+        for in_coord in non_wall_coords: 
             in_coords.append(PropSymbolExpr(pacman_str, in_coord[0], in_coord[1], time=t))
-
         KB.append(exactlyOne(in_coords))
-
-        # todas las posiciones de comida son falsas 
-        objective = PropSymbolExpr(pacman_str, xg, yg, time=t)
-        model = findModel(conjoin(KB + [objective]))
-        if (model):
-            return extractActionSequence(model, actions)
-
-        acts = []
-        for action in actions:
-            acts.append((PropSymbolExpr(action, time=t)))
-        KB.append(exactlyOne(acts))
-
+        #print(exactlyOne(in_coords))
+        # pacman's goal food i f all are false 
+        objective = []
         for pos in non_wall_coords:
-            # PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t) % PropSymbolExpr(pacman_str, x0, y0, time=t)
+            #print(~PropSymbolExpr(food_str, pos[0], pos[1], time=t))
+            objective.append(~PropSymbolExpr(food_str, pos[0], pos[1], time=t))
+        # use find model to prove if that goal can be true
+        model = findModel(conjoin(KB + objective))
+        #print(model)
+        if (model):
+            return extractActionSequence(model, actions) # return the actions' sequence from the beginning 
 
-            KB.append(pacmanSuccessorAxiomSingle(pos[0], pos[1], t+1, walls_grid))
+        # pacman takes ExactlyOne action for each time t
+        pacman_actions = []
+        for action in actions:
+            pacman_actions.append((PropSymbolExpr(action, time=t)))
+        KB.append(exactlyOne(pacman_actions))
 
+        # transition model sentences 
+        for pos in non_wall_coords:
+            # if there is food in pos and there is a pacman there, means that in the following point 
+            # thre shouldn´ t be any food in the following time 
+            if (PropSymbolExpr(food_str, pos[0], pos[1], time=t) % PropSymbolExpr(pacman_str,pos[0], pos[1], time=t)):
+                #print(~PropSymbolExpr(food_str, pos[0], pos[1], time=t+1))
+                KB.append(~PropSymbolExpr(food_str, pos[0], pos[1], time=t+1))
+
+            KB.append(pacmanSuccessorAxiomSingle(pos[0], pos[1], t+1, walls))
 
     return None
     "*** END YOUR CODE HERE ***"
