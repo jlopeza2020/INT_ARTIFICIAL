@@ -364,10 +364,8 @@ def pacphysicsAxioms(t: int, all_coords: List[Tuple], non_outer_wall_coords: Lis
 
     "*** BEGIN YOUR CODE HERE ***"
 
-    #coords = []
     for coord in all_coords:
         if PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t): 
-            #coords.append(PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t))
             pacphysics_sentences.append(PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t))
            
     in_coords = []
@@ -380,22 +378,13 @@ def pacphysicsAxioms(t: int, all_coords: List[Tuple], non_outer_wall_coords: Lis
     for direction in DIRECTIONS:
         dirs.append((PropSymbolExpr(direction, time=t)))
     pacphysics_sentences.append(exactlyOne(dirs))
-    #print("exactly One" , exactlyOne(dirs))
-    
-    #for x in coords:
-     #   pacphysics_sentences.append(x)
-      #  print(x)
-        
 
     if sensorModel is not None:
-        #print("sensor Model", sensorModel(t, non_outer_wall_coords))
         pacphysics_sentences.append(sensorModel(t, non_outer_wall_coords))
 
     if successorAxioms is not None and t != 0:
-        #print("sucessorAxioms", successorAxioms(t,walls_grid, non_outer_wall_coords))
         pacphysics_sentences.append(successorAxioms(t,walls_grid, non_outer_wall_coords))
              
-    #print("pacphysics sentences",pacphysics_sentences)
     "*** END YOUR CODE HERE ***"
     
     return conjoin(pacphysics_sentences)
