@@ -364,40 +364,38 @@ def pacphysicsAxioms(t: int, all_coords: List[Tuple], non_outer_wall_coords: Lis
 
     "*** BEGIN YOUR CODE HERE ***"
 
-    coords = []
+    #coords = []
     for coord in all_coords:
         if PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t): 
-            coords.append(PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t))
-
-        
+            #coords.append(PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t))
+            pacphysics_sentences.append(PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t))
+           
     in_coords = []
     for in_coord in non_outer_wall_coords:
         in_coords.append(PropSymbolExpr(pacman_str, in_coord[0], in_coord[1], time=t))
 
-    exactlyOne(in_coords)
+    pacphysics_sentences.append(exactlyOne(in_coords))
 
     dirs = []
     for direction in DIRECTIONS:
         dirs.append((PropSymbolExpr(direction, time=t)))
-    exactlyOne(dirs)
+    pacphysics_sentences.append(exactlyOne(dirs))
+    #print("exactly One" , exactlyOne(dirs))
     
-    for x in coords:
-        pacphysics_sentences.append(x)
+    #for x in coords:
+     #   pacphysics_sentences.append(x)
+      #  print(x)
         
-    for y in in_coords:
-        pacphysics_sentences.append(y)
-        
-    for z in dirs:
-        pacphysics_sentences.append(z)
 
     if sensorModel is not None:
-        pacphysics_sentences.append(sensorModel)
+        #print("sensor Model", sensorModel(t, non_outer_wall_coords))
+        pacphysics_sentences.append(sensorModel(t, non_outer_wall_coords))
 
-    print("sucessorAxioms", successorAxioms(t,walls_grid, non_outer_wall_coords))
-    if successorAxioms is not None:
+    if successorAxioms is not None and t != 0:
+        #print("sucessorAxioms", successorAxioms(t,walls_grid, non_outer_wall_coords))
         pacphysics_sentences.append(successorAxioms(t,walls_grid, non_outer_wall_coords))
              
-    print("pacphysics sentences",pacphysics_sentences)
+    #print("pacphysics sentences",pacphysics_sentences)
     "*** END YOUR CODE HERE ***"
     
     return conjoin(pacphysics_sentences)
@@ -432,36 +430,22 @@ def checkLocationSatisfiability(x1_y1: Tuple[int, int], x0_y0: Tuple[int, int], 
 
     "*** BEGIN YOUR CODE HERE ***"
 
-    t = 1
-    KB.append(pacphysicsAxioms(t, walls_list, non_outer_wall_coords, walls_grid, successorAxioms=allLegalSuccessorAxioms))
-    KB.append(PropSymbolExpr(pacman_str, x0, y0, time=t))
-    KB.append(PropSymbolExpr(action0, time=t))
-    KB.append(PropSymbolExpr(action1, time=t))
+    t0 = 0
+    t1 = 1
+    # alllegalsuccessorAxioms 
+    KB.append(pacphysicsAxioms(t0, all_coords, non_outer_wall_coords, walls_grid, successorAxioms=allLegalSuccessorAxioms))
+    KB.append(pacphysicsAxioms(t1, all_coords, non_outer_wall_coords, walls_grid, successorAxioms=allLegalSuccessorAxioms))
+    KB.append(PropSymbolExpr(pacman_str, x0, y0, time=t0))
+    KB.append(PropSymbolExpr(action0, time=t0))
+    KB.append(PropSymbolExpr(action1, time=t1))
 
 
-    conclusion = PropSymbolExpr(pacman_str, x1, y1, time=t)
+    conclusion = PropSymbolExpr(pacman_str, x1, y1, time=t1)
 
-    model1 = []
-    model2 = []
+    model1 = conjoin(KB + [conclusion])
+    model2 = conjoin(KB + [~conclusion])
 
-    for element in KB:
-        model1.append(element + conclusion)
-        model2.append(element + ~conclusion)
-
-        #print("i am an element", element)
-
-        #if findModel(element & conclusion): 
-            #print("soy TRUE", element)
-            #model1.append(element)
-        
-        #if findModel(element & ~conclusion): 
-            #print("soy FALSE", element)
-            #model2.append(element)
-    
-    #model1 = findModel(conjoin(KB ,conclusion))
-    #model2 = findModel(conjoin(KB, ~conclusion))
-
-    return conjoin(model1,model2)
+    return findModel(model1), findModel(model2)
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
