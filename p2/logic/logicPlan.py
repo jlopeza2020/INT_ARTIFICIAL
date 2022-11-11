@@ -461,7 +461,7 @@ def positionLogicPlan(problem) -> List:
     KB = []
 
     "*** BEGIN YOUR CODE HERE ***"
-    #pacman_actions = []
+
     t0 = 0
     max_time = 50
     # pacman's localization when t = 0
@@ -479,8 +479,6 @@ def positionLogicPlan(problem) -> List:
         model = findModel(conjoin(KB + [objective]))
         if (model):
             return extractActionSequence(model, actions)
-            #print("hola")
-            # return actions
 
         acts = []
         for action in actions:
@@ -520,7 +518,46 @@ def foodLogicPlan(problem) -> List:
     KB = []
 
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    t0 = 0
+    max_time = 50
+    # pacman's localization when t = 0
+
+    print(food)
+    KB.append(PropSymbolExpr(pacman_str, x0, y0, time=t0))
+
+    
+    # comprobar cada posicion
+    for t in range(max_time):
+
+        for food_pos in food:
+            PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t) % PropSymbolExpr(pacman_str,food_pos[0], food_pos[1], time=t)
+        
+        print("Time step",t)
+        in_coords = []
+        for in_coord in non_wall_coords:
+
+            in_coords.append(PropSymbolExpr(pacman_str, in_coord[0], in_coord[1], time=t))
+
+        KB.append(exactlyOne(in_coords))
+
+        # todas las posiciones de comida son falsas 
+        objective = PropSymbolExpr(pacman_str, xg, yg, time=t)
+        model = findModel(conjoin(KB + [objective]))
+        if (model):
+            return extractActionSequence(model, actions)
+
+        acts = []
+        for action in actions:
+            acts.append((PropSymbolExpr(action, time=t)))
+        KB.append(exactlyOne(acts))
+
+        for pos in non_wall_coords:
+            # PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t) % PropSymbolExpr(pacman_str, x0, y0, time=t)
+
+            KB.append(pacmanSuccessorAxiomSingle(pos[0], pos[1], t+1, walls_grid))
+
+
+    return None
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
