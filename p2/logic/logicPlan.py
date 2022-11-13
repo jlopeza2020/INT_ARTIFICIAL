@@ -527,12 +527,11 @@ def foodLogicPlan(problem) -> List:
     # pacman's localization when t = 0
     KB.append(PropSymbolExpr(pacman_str, x0, y0, time=t0))
 
-    for t in range(max_time):
+    food_points = []
+    for food_pos in food: 
+        food_points += [PropSymbolExpr(pacman_str, food_pos[0], food_pos[1], time=t0)]
 
-        # set all food as true 
-        for food_pos in food: 
-            if (PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t)):
-                KB.append(PropSymbolExpr(food_str, food_pos[0], food_pos[1], time=t))
+    for t in range(max_time):
 
         print("Time step",t)
 
@@ -543,11 +542,8 @@ def foodLogicPlan(problem) -> List:
         KB.append(exactlyOne(in_coords))
     
         # pacman's goal food if all are false 
-        objective = []
-        for pos in non_wall_coords:
-            objective.append(~PropSymbolExpr(food_str, pos[0], pos[1], time=t))
         # use find model to prove if that goal can be true
-        model = findModel(conjoin(KB + objective))
+        model = findModel(conjoin(KB) &  conjoin(food_points))
 
         if (model):
             return extractActionSequence(model, actions) # return the actions' sequence from the beginning 
@@ -560,13 +556,10 @@ def foodLogicPlan(problem) -> List:
 
         # transition model sentences 
         for pos in non_wall_coords:
-            # if there is food in pos and there is a pacman there, means that in the following point 
-            # thre shouldn´ t be any food in the following time 
-            if (PropSymbolExpr(food_str, pos[0], pos[1], time=t) % PropSymbolExpr(pacman_str,pos[0], pos[1], time=t)):
-                #print(~PropSymbolExpr(food_str, pos[0], pos[1], time=t+1))
-                KB.append(~PropSymbolExpr(food_str, pos[0], pos[1], time=t+1))
-
             KB.append(pacmanSuccessorAxiomSingle(pos[0], pos[1], t+1, walls))
+        
+        for pos in food:
+            food_points[food.index(pos)] = food_points[food.index(pos)] | PropSymbolExpr(pacman_str, pos[0], pos[1], time = t+1)
 
     return None
     "*** END YOUR CODE HERE ***"
