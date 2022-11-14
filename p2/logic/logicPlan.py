@@ -64,9 +64,8 @@ def sentence1() -> Expr:
     Snd_stc = ~A % logic.disjoin(~B, C)
     Trd_stc = logic.disjoin(~A, ~B,C)
 
+    # I chain all sentences in order 
     return logic.conjoin(Fst_stc,Snd_stc,Trd_stc)
-
-
 
     "*** END YOUR CODE HERE ***"
 
@@ -93,8 +92,8 @@ def sentence2() -> Expr:
     Trd_stc = ~(B & ~C) >> A
     Frth_stc = ~D >> C
 
+    # I chain all sentences in order 
     return logic.conjoin(Fst_stc,Snd_stc,Trd_stc,Frth_stc)
-
 
     "*** END YOUR CODE HERE ***"
 
@@ -112,16 +111,17 @@ def sentence3() -> Expr:
     "*** BEGIN YOUR CODE HERE ***"
 
     # Initialize 4 logic expressions
-    Alive_1 = logic.PropSymbolExpr("PacmanAlive_1")
-    Alive_0 = logic.PropSymbolExpr("PacmanAlive_0")
-    Born = logic.PropSymbolExpr("PacmanBorn_0")
-    Killed = logic.PropSymbolExpr("PacmanKilled_0")
+    Alive_1 = logic.PropSymbolExpr("PacmanAlive", time=1)
+    Alive_0 = logic.PropSymbolExpr("PacmanAlive", time=0)
+    Born = logic.PropSymbolExpr("PacmanBorn", time=0)
+    Killed = logic.PropSymbolExpr("PacmanKilled", time=0)
 
     # Define sentences
     Alive = Alive_1 % ((Alive_0 & ~Killed) | (~Alive_0 & Born))
     Cant_t_0  = ~(Alive_0 & Born)
     Born_t_0 = Born
 
+    # I chain all sentences in order 
     return logic.conjoin(Alive,Cant_t_0,Born_t_0) 
 
     "*** END YOUR CODE HERE ***"
@@ -216,7 +216,8 @@ def atLeastOne(literals: List[Expr]) -> Expr:
     """
     "*** BEGIN YOUR CODE HERE ***"
 
-    # if it says at least one means or logic 
+    # if it says at least one is true means an "or logic"
+    # disjoin return expresion in CNF form 
     return logic.disjoin(literals)
     "*** END YOUR CODE HERE ***"
 
@@ -230,13 +231,15 @@ def atMostOne(literals: List[Expr]) -> Expr:
     """
     "*** BEGIN YOUR CODE HERE ***"
     conjunctions = []
+    # convert into a list a tuple of length 2, in order with no repeating elemnts
     list_conj = list(itertools.combinations(literals, 2))
  
+    # iterate along list to make a disjunction of each ~pair
     for element in list_conj:
         disjunction = logic.disjoin(~element[0], ~element[1])
         conjunctions.append(disjunction)
 
-    # means return a and logic single Expr sentence
+    # I make that to assure that at most one in conjuctions will be true 
     return logic.conjoin(conjunctions)
 
     "*** END YOUR CODE HERE ***"
@@ -249,9 +252,9 @@ def exactlyOne(literals: List[Expr]) -> Expr:
     the expressions in the list is true.
     """
     "*** BEGIN YOUR CODE HERE ***"
-    # means both must be true 
+    # is a combination of both fuctions filled before
+    # I use conjoin because it specifies exactlyOne 
     return logic.conjoin(atLeastOne(literals), atMostOne(literals))
-
 
     "*** END YOUR CODE HERE ***"
 
@@ -285,13 +288,15 @@ def pacmanSuccessorAxiomSingle(x: int, y: int, time: int, walls_grid: List[List[
         return None
     
     "*** BEGIN YOUR CODE HERE ***"
-
+    # Pacman is in x, y now
     current = logic.PropSymbolExpr(pacman_str, x, y, time=now)
 
+    #  disjoin(posible_causes) = (previous position at time t-1) & (took action to move to x, y)
+    # final axiom = Current <==> (previous position at time t-1) & (took action to move to x, y)
+    # So, final axiom behaves as expected
     final_axiom = current % disjoin(possible_causes)
 
     return final_axiom
-
 
     "*** END YOUR CODE HERE ***"
 
@@ -363,25 +368,33 @@ def pacphysicsAxioms(t: int, all_coords: List[Tuple], non_outer_wall_coords: Lis
     pacphysics_sentences = []
 
     "*** BEGIN YOUR CODE HERE ***"
-
+    # for x, y in all_coords
+    # if there is a wall in x, y, then (>>) pacman won't be in x, y in time t
+    # add sentence into pachysics_sentences
     for coord in all_coords:
         if PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t): 
             pacphysics_sentences.append(PropSymbolExpr(wall_str, coord[0], coord[1]) >> ~PropSymbolExpr(pacman_str, coord[0], coord[1], time=t))
            
+    # pacman is exactlyOne in x,y of non_outer_wall_coords
+    # which are all posible positions pacman will be 
+    # add sentence into pachysics_sentences
     in_coords = []
     for in_coord in non_outer_wall_coords:
         in_coords.append(PropSymbolExpr(pacman_str, in_coord[0], in_coord[1], time=t))
-
     pacphysics_sentences.append(exactlyOne(in_coords))
 
+    # pacman takes exactlyOne of the four DIRECTIONS in time t 
+    # add sentence into pachysics_sentences
     dirs = []
     for direction in DIRECTIONS:
         dirs.append((PropSymbolExpr(direction, time=t)))
     pacphysics_sentences.append(exactlyOne(dirs))
 
+    # if sensorModel is not None : add sensorModel to pacphysics_sentences
     if sensorModel is not None:
         pacphysics_sentences.append(sensorModel(t, non_outer_wall_coords))
 
+    # if sucessorAxioms is not None and time != 0: add sucessorAxioms to pacphysics_sentences
     if successorAxioms is not None and t != 0:
         pacphysics_sentences.append(successorAxioms(t,walls_grid, non_outer_wall_coords))
              
@@ -418,20 +431,28 @@ def checkLocationSatisfiability(x1_y1: Tuple[int, int], x0_y0: Tuple[int, int], 
     KB.append(conjoin(map_sent))
 
     "*** BEGIN YOUR CODE HERE ***"
-
+    # define posible times involved in this function
     t0 = 0
     t1 = 1
-    # alllegalsuccessorAxioms 
+
+    # add to KB:
+        # pacphysicsAxioms for t0 and t1
     KB.append(pacphysicsAxioms(t0, all_coords, non_outer_wall_coords, walls_grid, successorAxioms=allLegalSuccessorAxioms))
     KB.append(pacphysicsAxioms(t1, all_coords, non_outer_wall_coords, walls_grid, successorAxioms=allLegalSuccessorAxioms))
+        # actual pacman's position 
     KB.append(PropSymbolExpr(pacman_str, x0, y0, time=t0))
+        # pacman takes action0 in time0
     KB.append(PropSymbolExpr(action0, time=t0))
+        # pacman takes action1 in time1
     KB.append(PropSymbolExpr(action1, time=t1))
 
-
+    # objective of this fuction is to prove  that pacman is in
+    # the following time (t=1) in x1,y1
     conclusion = PropSymbolExpr(pacman_str, x1, y1, time=t1)
 
+    # pacman is in x1, y1 in time = 1
     model1 = conjoin(KB + [conclusion])
+    # pacman is not in x1, y1 in time = 1
     model2 = conjoin(KB + [~conclusion])
 
     return findModel(model1), findModel(model2)
@@ -461,39 +482,45 @@ def positionLogicPlan(problem) -> List:
     KB = []
 
     "*** BEGIN YOUR CODE HERE ***"
-
+    #define initial time and maximun of time steps 
     t0 = 0
     max_time = 50
-    # pacman's localization when t = 0
+
+    # pacman's localization when t = 0 and add to KB
     KB.append(PropSymbolExpr(pacman_str, x0, y0, time=t0))
 
     for t in range(max_time):
-        print("Time step",t)
+        # show that code is being executed 
+        print("time step",t)
 
         # in all posible pacman's position, pacman should be in ExactlyOne square at time t
+        # and add to KB
         in_coords = []
         for in_coord in non_wall_coords: 
             in_coords.append(PropSymbolExpr(pacman_str, in_coord[0], in_coord[1], time=t))
         KB.append(exactlyOne(in_coords))
 
-        # paman's goal position 
+        # pacman's goal position 
         objective = PropSymbolExpr(pacman_str, xg, yg, time=t)
-        # use find model to prove if that goal can be true
+        # use find model to prove if the goal can be true
         model = findModel(conjoin(KB + [objective]))
         if (model):
-            return extractActionSequence(model, actions) # return the actions' sequence from the beginning 
+            return extractActionSequence(model, actions) # return the actions'sequence from the beginning 
 
-        # pacman takes ExactlyOne action for each time t
+        # pacman takes ExactlyOne action for each time t and add to KB
         pacman_actions = []
         for action in actions:
             pacman_actions.append((PropSymbolExpr(action, time=t)))
         KB.append(exactlyOne(pacman_actions))
 
-        # transition model sentences 
+        # add to KB transition model sentences so I must use  
+        # pacmanSuccessorAxiomSingle in non_wall_coords which are 
+        # the coords, pacman can go
         for pos in non_wall_coords:
             KB.append(pacmanSuccessorAxiomSingle(pos[0], pos[1], t+1, walls_grid))
 
     return None
+
     "*** END YOUR CODE HERE ***"
 
 #______________________________________________________________________________
@@ -522,42 +549,50 @@ def foodLogicPlan(problem) -> List:
     KB = []
 
     "*** BEGIN YOUR CODE HERE ***"
+    #define initial time and maximun of time steps
     t0 = 0
     max_time = 50
-    # pacman's localization when t = 0
+
+    # pacman's localization when t = 0 and add to KB
     KB.append(PropSymbolExpr(pacman_str, x0, y0, time=t0))
 
+    # initialize food variables (means in t0)  
     food_points = []
     for food_pos in food: 
         food_points += [PropSymbolExpr(pacman_str, food_pos[0], food_pos[1], time=t0)]
 
     for t in range(max_time):
-
-        print("Time step",t)
+        # show that code is being executed
+        print("time step",t)
 
         # in all posible pacman's position, pacman should be in ExactlyOne square at time t
+        # and add to KB
         in_coords = []
         for in_coord in non_wall_coords: 
             in_coords.append(PropSymbolExpr(pacman_str, in_coord[0], in_coord[1], time=t))
         KB.append(exactlyOne(in_coords))
     
-        # pacman's goal food if all are false 
-        # use find model to prove if that goal can be true
+        # I use find model to prove if the goal can be true
+        # the goal is the food has been eaten (if all points are False).
+        # that can be proved using conjoin 
         model = findModel(conjoin(KB) &  conjoin(food_points))
-
         if (model):
             return extractActionSequence(model, actions) # return the actions' sequence from the beginning 
 
-        # pacman takes ExactlyOne action for each time t
+        # pacman takes ExactlyOne action for each time t and add to KB
         pacman_actions = []
         for action in actions:
             pacman_actions.append((PropSymbolExpr(action, time=t)))
         KB.append(exactlyOne(pacman_actions))
 
-        # transition model sentences 
+        # add to KB transition model sentences so I must use  
+        # pacmanSuccessorAxiomSingle in non_wall_coords which are 
+        # the coords, pacman can go
         for pos in non_wall_coords:
             KB.append(pacmanSuccessorAxiomSingle(pos[0], pos[1], t+1, walls))
         
+        # sucessor axiom food: 
+        # set true in food points if pacman is in position t+1 (means it has eaten the food in that position)
         for pos in food:
             food_points[food.index(pos)] = food_points[food.index(pos)] | PropSymbolExpr(pacman_str, pos[0], pos[1], time = t+1)
 
