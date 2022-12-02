@@ -108,7 +108,7 @@ def constructBayesNet(gameState):
     
     # a single "food house" variable (containing the house centers)
     variableDomainsDict[FOOD_HOUSE_VAR] = HOUSE_VALS
-    # a single "gost house " variable (containing the house centers)
+    # a single "gHost house " variable (containing the house centers)
     variableDomainsDict[GHOST_HOUSE_VAR]  = HOUSE_VALS
 
     # (from, to)
@@ -120,10 +120,10 @@ def constructBayesNet(gameState):
     edges.append(relation2)
 
     # Y pos links with Food house 
-    relation3 = (X_POS_VAR, FOOD_HOUSE_VAR)
+    relation3 = (Y_POS_VAR, FOOD_HOUSE_VAR)
     edges.append(relation3)
     # Y pos links with Ghost house
-    relation4 = (X_POS_VAR, GHOST_HOUSE_VAR)
+    relation4 = (Y_POS_VAR, GHOST_HOUSE_VAR)
     edges.append(relation4)
 
     for housePos in gameState.getPossibleHouses():
@@ -172,7 +172,12 @@ def fillYCPT(bayesNet, gameState):
 
     yFactor = bn.Factor([Y_POS_VAR], [], bayesNet.variableDomainsDict())
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Y positions and their associated probabilities
+    yFactor.setProbability({Y_POS_VAR: BOTH_TOP_VAL}, PROB_BOTH_TOP)
+    yFactor.setProbability({Y_POS_VAR: BOTH_BOTTOM_VAL}, PROB_BOTH_BOTTOM)
+    yFactor.setProbability({Y_POS_VAR: LEFT_TOP_VAL}, PROB_ONLY_LEFT_TOP)
+    yFactor.setProbability({Y_POS_VAR: LEFT_BOTTOM_VAL}, PROB_ONLY_LEFT_BOTTOM)
+
     "*** END YOUR CODE HERE ***"
     bayesNet.setCPT(Y_POS_VAR, yFactor)
 
