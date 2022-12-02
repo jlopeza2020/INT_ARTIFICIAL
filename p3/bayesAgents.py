@@ -98,7 +98,49 @@ def constructBayesNet(gameState):
 
     "*** YOUR CODE HERE ***"
     
+    # Constructing Bayes' nets: variables list
+    variableList = [X_POS_VAR, Y_POS_VAR, FOOD_HOUSE_VAR, GHOST_HOUSE_VAR]
+
+    # x positions : food-left, ghost-left
+    variableDomainsDict[X_POS_VAR]  = X_POS_VALS
+    # y positions:  both-top, both-bottom, left-top, left-bottom
+    variableDomainsDict[Y_POS_VAR] = Y_POS_VALS
     
+    # a single "food house" variable (containing the house centers)
+    variableDomainsDict[FOOD_HOUSE_VAR] = HOUSE_VALS
+    # a single "gost house " variable (containing the house centers)
+    variableDomainsDict[GHOST_HOUSE_VAR]  = HOUSE_VALS
+
+    # (from, to)
+    # X pos links with Food house 
+    relation1 = (X_POS_VAR, FOOD_HOUSE_VAR)
+    edges.append(relation1)
+    # x pos links with Ghost house
+    relation2 = (X_POS_VAR, GHOST_HOUSE_VAR)
+    edges.append(relation2)
+
+    # Y pos links with Food house 
+    relation3 = (X_POS_VAR, FOOD_HOUSE_VAR)
+    edges.append(relation3)
+    # Y pos links with Ghost house
+    relation4 = (X_POS_VAR, GHOST_HOUSE_VAR)
+    edges.append(relation4)
+
+    for housePos in gameState.getPossibleHouses():
+        for obsPos in gameState.getHouseWalls(housePos):
+            obsVar = OBS_VAR_TEMPLATE % obsPos
+            # add each value observed in array obsvars
+            obsVars.append(obsVar)
+
+    for obserVar in obsVars:
+
+        variableDomainsDict[obserVar]  = OBS_VALS
+        relation5 = (FOOD_HOUSE_VAR, obserVar)
+        edges.append(relation5)
+
+        relation6 = (GHOST_HOUSE_VAR, obserVar)
+        edges.append(relation6)
+
     "*** END YOUR CODE HERE ***"
 
     variables = [X_POS_VAR, Y_POS_VAR] + HOUSE_VARS + obsVars
