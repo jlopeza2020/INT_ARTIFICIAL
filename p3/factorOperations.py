@@ -102,38 +102,65 @@ def joinFactors(factors):
 
 
     "*** YOUR CODE HERE ***"
-    #variableDomainsDict = {}
+    
+    # convert into a list to facilitate the iteration 
+    factors_list = list(factors)
 
-    #variableDomainsDict = factors
-    #for factor in factors: 
-
-
-    # fixxxx
-    unconditioned = []
-    conditioned = []
+    # define structure I want to use 
+    unconditioned = set()
+    conditioned = set()
     variableDomainsDict = {}
+    repeated = set()
 
-    if factors and len(factors) > 0:
-        variableDomainsDict = factors[0].variableDomainsDict()
+    # get the domain 
+    variableDomainsDict = factors_list[0].variableDomainsDict()
 
-    for f in factors:
-        temp_unconditioned = f.unconditionedVariables()
-        temp_conditioned = f.conditionedVariables()
-        unconditioned.extend(temp_unconditioned)
-        for conditioned_var in temp_conditioned:
-            if conditioned_var not in conditioned:
-                conditioned.append(conditioned_var)
-    conditioned = [var for var in conditioned if var not in unconditioned]
+    
+    #iterate all factors 
+    for factor in factors_list: 
 
-    newFactor = Factor(unconditioned, conditioned, variableDomainsDict)
-    assignments = newFactor.getAllPossibleAssignmentDicts()
+        # get the unconditioned vars of each factor 
+        uncond_vars = factor.unconditionedVariables()
+        # get the conditioned vars of each factor 
+        cond_vars = factor.conditionedVariables()
+
+        # include the uncond vars into the uncond list
+        for uncond_var in uncond_vars:
+            unconditioned.add(uncond_var)
+
+        # include the cond vars into the cond list 
+        for cond_var in cond_vars:
+            conditioned.add(cond_var)
+    
+    # compare the both uncon and cond and if the uncond is 
+    # equal to the cond, add that values into the auxiliar 
+    # list 
+    for uncond in unconditioned:
+
+        for cond in conditioned:
+
+            if cond == uncond:
+                repeated.add(cond)
+
+    # eliminate from the conditioned the elements 
+    # included in the auxiliar list
+    for repeat in repeated: 
+        conditioned.remove(repeat)
+    
+    # create new factor with the previous calculated elements
+    new_factor = Factor(unconditioned, conditioned, variableDomainsDict)
+    
+    # get all assignments 
+    assignments = new_factor.getAllPossibleAssignmentDicts()
+    # iterate along all assingments and multiply each probability
     for assignment in assignments:
         prob = 1
         for factor in factors:
             prob *= factor.getProbability(assignment)
-        newFactor.setProbability(assignment, prob)
+        # set new probability for the new factor 
+        new_factor.setProbability(assignment, prob)
 
-    return newFactor
+    return new_factor
 
     "*** END YOUR CODE HERE ***"
 
@@ -213,6 +240,7 @@ def eliminateWithCallTracking(callTrackingList=None):
                 tmp_assignment[eliminationVariable] = elim_val
                 prob += factor.getProbability(tmp_assignment)
 
+            # set new probability to the new factor 
             new_factor.setProbability(assignment, prob)
 
         return new_factor
