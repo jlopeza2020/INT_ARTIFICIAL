@@ -135,18 +135,23 @@ def inferenceByVariableEliminationWithCallTracking(callTrackingList=None):
         # for all variables in the bayes net 
         factors = bayesNet.getAllCPTsWithEvidence(evidenceDict)
 
-        # iterate along eliminationOrder list
-        for joinvariable in eliminationOrder:
+        # iterate along eliminationOrder list in orden to 
+        # eliminate them until it stays consult and evidence variables 
+        for var in eliminationOrder:
 
-            factors, resulted_factors = joinFactorsByVariable(factors, joinvariable)
-            if len(resulted_factors .unconditionedVariables()) > 1:
-                temp_factor = eliminate(resulted_factors, joinvariable)
+            
+            factors, resulted_factors = joinFactorsByVariable(factors, var)
+            # assures that is a true conditional probability:
+            # eliminating the ones that its length is higher that 1
+            if len(resulted_factors.unconditionedVariables()) > 1:
+                temp_factor = eliminate(resulted_factors, var)
                 factors.append(temp_factor)
-
+        # make the join
         final_factor = joinFactors(factors)
+        
+        # normalize as it does in the function above 
         return normalize(final_factor)
         "*** END YOUR CODE HERE ***"
-
 
     return inferenceByVariableElimination
 

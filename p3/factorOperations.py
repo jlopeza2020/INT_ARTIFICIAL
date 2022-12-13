@@ -301,13 +301,11 @@ def normalize(factor):
     "*** YOUR CODE HERE ***"
     
     
-
+    prob_sum = 0
     unconditioned_vars = factor.unconditionedVariables()
     conditioned_vars = factor.conditionedVariables()
-
-    # check the correct oif total probability != 0
-    prob_sum = 0
     assignments = factor.getAllPossibleAssignmentDicts()
+
     # start adding al probabilities of each assignment 
     for assignment in assignments:
         prob_sum += factor.getProbability(assignment)
@@ -330,7 +328,10 @@ def normalize(factor):
     #unconditioned_vars = [var for var in unconditioned_vars if var not in conditioned_vars]
     new_factor = Factor(unconditioned_vars, conditioned_vars, variableDomainsDict)
 
-    for assignment in new_factor.getAllPossibleAssignmentDicts():
+    assignments = new_factor.getAllPossibleAssignmentDicts()
+    # iterate along all assignments to set 
+    # the new probability of the new factor
+    for assignment in assignments:
         prob = factor.getProbability(assignment) / prob_sum
         new_factor.setProbability(assignment, prob)
 
